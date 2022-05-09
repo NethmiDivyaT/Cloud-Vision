@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="container">
+       <div class="btn">
+      <form action="/display" method="post">
+        <button class="button"> List all Labels </button>
+      </form>
+      </div>
+      <div class="list">
+      <ul>
+        {% for i in transcript %} {% for k,v in i.items() %}
+        <li>{{k}} : {{v}}%</li>
+        {% endfor %} {% endfor %}
+      </ul>
+   </div>
+    </div>
+  </body>
+</html>
