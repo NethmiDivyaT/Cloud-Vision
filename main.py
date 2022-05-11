@@ -24,6 +24,8 @@ def speech():
 
     dog = []
     cat = []
+    CScore = 0
+    DScore = 0
 
     for blob in blobs:
 
@@ -40,10 +42,14 @@ def speech():
         for object_ in objects:
 
             if str(object_.name) == 'dog' or str(object_.name) == 'Dog' or str(object_.name) == 'DOG':
-                dog.append(blob.name)
+                DScore = object_.score
+                if DScore >= 0.8:
+                    dog.append(blob.name)
 
             if str(object_.name) == 'cat' or str(object_.name) == 'Cat' or str(object_.name) == 'CAT':
-                cat.append(blob.name)
+                CScore = object_.score
+                if CScore >= 0.8:
+                    cat.append(blob.name)
 
     return render_template("main.html", cat=cat, dog=dog)
 
