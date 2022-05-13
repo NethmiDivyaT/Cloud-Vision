@@ -30,6 +30,7 @@ def speech():
     for blob in blobs:
 
         image_file = f'gs://lively-metrics-337209.appspot.com/{blob.name}'
+        public_url = f'https://storage.googleapis.com/lively-metrics-337209.appspot.com/{blob.name}'
 
         objects = client.object_localization(
             {
@@ -44,12 +45,14 @@ def speech():
             if str(object_.name) == 'dog' or str(object_.name) == 'Dog' or str(object_.name) == 'DOG':
                 DScore = object_.score
                 if DScore >= 0.8:
-                    dog.append(blob.name)
+                    # dog.append(blob.name)
+                    dog.append(public_url)
 
             if str(object_.name) == 'cat' or str(object_.name) == 'Cat' or str(object_.name) == 'CAT':
                 CScore = object_.score
                 if CScore >= 0.8:
-                    cat.append(blob.name)
+                    # cat.append(blob.name)
+                    cat.append(public_url)
 
     return render_template("main.html", cat=cat, dog=dog)
 
