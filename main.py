@@ -1,7 +1,10 @@
+from fileinput import filename
 from flask import Flask, request, render_template
 from google.cloud import vision
 from google.cloud import storage
 import os
+import sys
+
 
 app = Flask(__name__, template_folder="templates")
 
@@ -12,49 +15,54 @@ def index():
 
 
 @app.route("/display", methods=["GET", "POST"])
-def speech():
+def uploadimg():
 
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth.json"
 
+    # bucket_name = "lively-metrics-337209.appspot.com"
+
+    filename = request.files['filename']
+
+    """Uploads a file to the bucket."""
+    # The ID of your GCS bucket
     bucket_name = "lively-metrics-337209.appspot.com"
+
+    # The path to your filively-metrics-337209.appspot.comle to upload
+    destination_blob_name = "%s/%s" % ('', filename.filename)
+
+    # The ID of your GCS object
+    source_file_name = 'gs://lively-metrics-337209.appspot.com/' + filename.filename
+
+    # data = Image.open(os.path.join(folder, file),'r'))
+
     storage_client = storage.Client()
-    blobs = storage_client.list_blobs(bucket_name)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
 
+    blob.upload_from_file(filename, filename.content_type)
+
+    print(
+        f"File {source_file_name} uploaded to {destination_blob_name}."
+    )
+
+    imgurl = "gs://lively-metrics-337209.appspot.com//" + filename.filename
+
+    object = []
     client = vision.ImageAnnotatorClient()
+    image = vision.Image()
+    image.source.image_uri = source_file_name
 
-    dog = []
-    cat = []
-    CScore = 0
-    DScore = 0
+    response = client.web_detection(image=image)
+    annotations = response.web_detection
 
-    for blob in blobs:
+    if annotations.pages_with_matching_images:
 
-        image_file = f'gs://lively-metrics-337209.appspot.com/{blob.name}'
-        public_url = f'https://storage.googleapis.com/lively-metrics-337209.appspot.com/{blob.name}'
+        for page in annotations.pages_with_matching_images:
+            for page in annotations.pages_with_matching_images:
+                if page.full_matching_images:
+                    object.append(format(page.url))
 
-        objects = client.object_localization(
-            {
-                "source": {
-                    "image_uri": image_file
-                },
-            }
-        ).localized_object_annotations
-
-        for object_ in objects:
-
-            if str(object_.name) == 'dog' or str(object_.name) == 'Dog' or str(object_.name) == 'DOG':
-                DScore = object_.score
-                if DScore >= 0.8:
-                    # dog.append(blob.name)
-                    dog.append(public_url)
-
-            if str(object_.name) == 'cat' or str(object_.name) == 'Cat' or str(object_.name) == 'CAT':
-                CScore = object_.score
-                if CScore >= 0.8:
-                    # cat.append(blob.name)
-                    cat.append(public_url)
-
-    return render_template("main.html", cat=cat, dog=dog)
+    return render_template('main.html', object=object)
 
 
 if __name__ == "__main__":
