@@ -28,10 +28,10 @@ def uploadimg():
     bucket_name = "lively-metrics-337209.appspot.com"
 
     # The path to your filively-metrics-337209.appspot.comle to upload
-    destination_blob_name = "%s/%s" % ('', filename.filename)
+    destination_blob_name = '%s/%s' % ('image', filename.filename)
 
     # The ID of your GCS object
-    source_file_name = 'gs://lively-metrics-337209.appspot.com/' + filename.filename
+    source_file_name = 'gs://lively-metrics-337209.appspot.com/image/' + filename.filename
 
     # data = Image.open(os.path.join(folder, file),'r'))
 
@@ -45,9 +45,10 @@ def uploadimg():
         f"File {source_file_name} uploaded to {destination_blob_name}."
     )
 
-    imgurl = "gs://lively-metrics-337209.appspot.com//" + filename.filename
+    #imgurl = "gs://lively-metrics-337209.appspot.com//" + filename.filename
 
     object = []
+    null = False
     client = vision.ImageAnnotatorClient()
     image = vision.Image()
     image.source.image_uri = source_file_name
@@ -58,11 +59,12 @@ def uploadimg():
     if annotations.pages_with_matching_images:
 
         for page in annotations.pages_with_matching_images:
-            for page in annotations.pages_with_matching_images:
-                if page.full_matching_images:
-                    object.append(format(page.url))
+            if page.full_matching_images:
+                object.append(format(page.url))
+    else:
+        null = "True"
 
-    return render_template('main.html', object=object)
+    return render_template('main.html', object=object, null=null)
 
 
 if __name__ == "__main__":
